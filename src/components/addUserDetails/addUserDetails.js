@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Select from 'react-select';
 import axios from 'axios';
+//import Swal from 'sweetalert2';
 
 const initialState = {
     userName: '',
@@ -12,9 +13,6 @@ const initialState = {
     selectedUserRole: '',
     selectedEmployee: '',
     selectedCompany: '',
-    roleId:'',
-    empId:'',
-    comId:'',
     optionsRl: '',
     optionsEmp: '',
     optionsCom: ''
@@ -25,9 +23,6 @@ class addUserDetails extends Component {
         this.state = initialState;
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        // this.onUserRoleSelect = this.onUserRoleSelect.bind(this);
-        // this.onEmployeeSelect = this.onEmployeeSelect.bind(this);
-        // this.onCompanySelect = this.onCompanySelect.bind(this);
     }
 
 
@@ -65,7 +60,7 @@ class addUserDetails extends Component {
                     this.setState({ optionsCom: comData })
                 })
                 console.log(res.data);
-                
+
             })
             .catch(error => {
                 console.log(error);
@@ -96,38 +91,35 @@ class addUserDetails extends Component {
         this.setState({ [e.target.name]: e.target.value })
     }
 
-    // onUserRoleSelect(e) {
-    //     this.setState({ [e.target.selectedUserRole]: e.target.value});
-    // }
-
-    // onEmployeeSelect(e) {
-    //     this.setState({ [e.target.selectedEmployee]: e.target.value});
-    // }
-
-    // onCompanySelect(e) {
-    //     this.setState({ [e.target.selectedCompany]: e.target.value});
-    // }
-
-    // onUserRoleSelect = (e) => {
-
-    //     this.setState({
-    
-    //         selectedUserRole: e.target.value,
-    
-    //     });
-    
-    //   };
+    onCompanySelect = (e) => {
+        console.log(e.value);
+        this.setState({
+            selectedCompany: e.value,
+        });
+    };
+    onEmployeeSelect = (e) => {
+        console.log(e.value);
+        this.setState({
+            selectedEmployee: e.value,
+        });
+    };
+    onUserRoleSelect = (e) => {
+        console.log(e.value);
+        this.setState({
+            selectedUserRole: e.value,
+        });
+    };
 
     onSubmit(e) {
         e.preventDefault();
         const userRl = {
-            roleId:this.state.roleId
+            roleId: this.state.selectedUserRole
         }
         const emp = {
-            empId:this.state.empId
+            empId: this.state.selectedEmployee
         }
         const com = {
-            id:this.state.comId
+            id: this.state.selectedCompany
         }
         const user = {
             userName: this.state.userName,
@@ -136,18 +128,33 @@ class addUserDetails extends Component {
             employee: emp,
             company: com,
             userRoles: userRl
-            
+
         };
-        console.log('DATA TO SEND', user)
-        axios.post('http://localhost:8080/api/user/add',user)
-        
+        //console.log('DATA TO SEND', user)
+        axios.post('http://localhost:8080/api/user/add', user)
             .then(res => {
+                console.log(res.status);
+                if(res.status === 404){
+                    alert('password mismatch')
+                }
                 alert('Data successfully inserted')
+                // Swal.fire('Data Successfully inserted',
+                //     this.props.history.push('/')
+                // )
+                this.props.history.push('/')
             })
             .catch(error => {
                 console.log(error.message);
                 alert(error.message)
             })
+    }
+
+
+    restData = () => {
+        this.setState({
+            selectedUserRole: '',
+        })
+        console.log('button click')
     }
 
     render() {
@@ -157,14 +164,13 @@ class addUserDetails extends Component {
                     <h1>Add New User</h1>
                     <form onSubmit={this.onSubmit}>
                         <div className="mb-3">
-                            <label htmlFor="selectedUserRole" className="form-label">Select Role :*</label>
+                            <label htmlFor="UserRole" className="form-label">Select Role :*</label>
                             <Select
                                 options={this.state.optionsRl}
-                                value={this.state.selectedUserRole}
                                 className="basic-multi-select"
                                 name="selectedUserRole"
-                                onChange={this.onChange}
-                                
+                                onChange={this.onUserRoleSelect}
+
                             />
                         </div>
                         <div className="mb-3">
@@ -173,7 +179,7 @@ class addUserDetails extends Component {
                                 options={this.state.optionsEmp}
                                 onChange={this.onEmployeeSelect}
                                 className="basic-multi-select"
-                                
+
                             />
                         </div>
                         <div className="mb-3">
@@ -182,7 +188,7 @@ class addUserDetails extends Component {
                                 options={this.state.optionsCom}
                                 onChange={this.onCompanySelect}
                                 className="basic-multi-select"
-                                
+
                             />
                         </div>
                         <div className="mb-3">
@@ -219,7 +225,7 @@ class addUserDetails extends Component {
                             />
                         </div>
                         <button type="submit" className="btn btn-primary" style={{ width: "120px" }}>Save</button>
-                        <button type="reset" className="btn btn-danger" style={{ marginLeft: "10px", width: "120px" }}>Clear</button>
+                        <button type="reset" className="btn btn-danger" onClick={this.restData} style={{ marginLeft: "10px", width: "120px" }}>Clear</button>
                     </form>
                 </div>
             </div>
